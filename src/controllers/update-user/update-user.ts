@@ -36,7 +36,7 @@ export class UpdateUserController implements IUpdateUserController {
     } catch (error) {
       return {
         statusCode: 500,
-        body: "Internal Server Error" + error,
+        body: `${error}`,
       };
     }
   }
