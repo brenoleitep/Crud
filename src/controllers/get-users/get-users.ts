@@ -14,7 +14,7 @@ export class GetUsersController implements IGetUsersController {
     } catch (error) {
       return {
         statusCode: 500,
-        body: "Algo está errado."
+        body: `Algo está errado. ${error}`
       }
     }
   }
