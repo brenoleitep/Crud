@@ -1,45 +1,32 @@
 import { User } from "../../models/user";
+import { badRequest, ok, serverError } from "../helpers";
 import { HttpRequest, HttpResponse, IController } from "../protocols";
 import { IUpdateUserRespository, UpdateUserParams } from "./protocols";
 
 export class UpdateUserController implements IController {
   constructor(private readonly updateUserRepository: IUpdateUserRespository) {}
-  async handle(httpRequest: HttpRequest<UpdateUserParams>): Promise<HttpResponse<User>> {
+  async handle(httpRequest: HttpRequest<UpdateUserParams>): Promise<HttpResponse<User | string>> {
 
     try {
       const id = httpRequest?.params?.id;
       const body = httpRequest?.body;
 
       if (!id) {
-      return {
-        statusCode: 400,
-        body: "Missing ID parameter",
-      };
-    }
-    const allowedFieldsToUpdate: (keyof UpdateUserParams)[] = ["firstName", 'lastName', 'password']
-    const someFieldIsNotAllowedToUpdate = Object.keys(body!).some(key => !allowedFieldsToUpdate.includes(key as keyof UpdateUserParams));
+        return badRequest("Missing id parameter");
+      }
 
-    if (someFieldIsNotAllowedToUpdate) {
-      return {
-        statusCode: 400,
-        body: "Some fields are not allowed to be updated",
-      };
-    }
+      const allowedFieldsToUpdate: (keyof UpdateUserParams)[] = ["firstName", 'lastName', 'password']
+      const someFieldIsNotAllowedToUpdate = Object.keys(body!).some(key => !allowedFieldsToUpdate.includes(key as keyof UpdateUserParams));
 
-    const user = await this.updateUserRepository.updateUser(id, body!);
+      if (someFieldIsNotAllowedToUpdate) {
+        return badRequest("Missing id parameter");
+      }
 
-    return {
-      statusCode: 200,
-      body: user,
-    }
+      const user = await this.updateUserRepository.updateUser(id, body!);
 
-    } catch (error) {
-      return {
-        statusCode: 500,
-        body: `${error}`,
-      };
+      return ok<User>(user);
+    } catch {
+        return serverError();
     }
   }
-
-
 }
