@@ -1,10 +1,10 @@
 import { User } from "../../models/user";
-import { HttpRequest, HttpResponse } from "../protocols";
-import { IUpdateUserController, IUpdateUserRespository, UpdateUserParams } from "./protocols";
+import { HttpRequest, HttpResponse, IController } from "../protocols";
+import { IUpdateUserRespository, UpdateUserParams } from "./protocols";
 
-export class UpdateUserController implements IUpdateUserController {
+export class UpdateUserController implements IController {
   constructor(private readonly updateUserRepository: IUpdateUserRespository) {}
-  async handle(httpRequest: HttpRequest<any>): Promise<HttpResponse<User>> {
+  async handle(httpRequest: HttpRequest<UpdateUserParams>): Promise<HttpResponse<User>> {
 
     try {
       const id = httpRequest?.params?.id;
@@ -17,7 +17,7 @@ export class UpdateUserController implements IUpdateUserController {
       };
     }
     const allowedFieldsToUpdate: (keyof UpdateUserParams)[] = ["firstName", 'lastName', 'password']
-    const someFieldIsNotAllowedToUpdate = Object.keys(body).some(key => !allowedFieldsToUpdate.includes(key as keyof UpdateUserParams));
+    const someFieldIsNotAllowedToUpdate = Object.keys(body!).some(key => !allowedFieldsToUpdate.includes(key as keyof UpdateUserParams));
 
     if (someFieldIsNotAllowedToUpdate) {
       return {
@@ -26,7 +26,7 @@ export class UpdateUserController implements IUpdateUserController {
       };
     }
 
-    const user = await this.updateUserRepository.updateUser(id, body);
+    const user = await this.updateUserRepository.updateUser(id, body!);
 
     return {
       statusCode: 200,
